@@ -1,31 +1,56 @@
 # CAR RENTAL ERP — INSTALLATION & SETUP GUIDE
 
-## 1. Prerequisites
+## 1. Quick Setup with Docker (Recommended 🐳)
+
+### Prerequisites
+- Docker Desktop v24+ & Docker Compose v2.20+
+
+```bash
+# 1. Configure environment from Docker template
+cp .env.docker.example .env
+
+# 2. Build images and start all containers (App, Nginx, MySQL 8.0, Queue Worker, Scheduler)
+docker compose up -d --build
+
+# 3. Run database migrations with comprehensive dummy seeds
+docker compose exec app php artisan migrate:fresh --seed
+
+# 4. View container status
+docker compose ps
+```
+
+Visit: `http://localhost:8000`
+
+---
+
+## 2. Local Native Setup (Without Docker)
+
+### Prerequisites
 - **PHP:** 8.2+ (PHP 8.4 recommended) with extensions: `pdo_mysql`, `mbstring`, `curl`, `openssl`, `gd`, `zip`, `bcmath`.
 - **Database:** MariaDB 10.4+ or MySQL 8.0+.
 - **Node.js:** v20+ with npm.
 - **Composer:** v2+.
 
----
-
-## 2. Quick Setup
-
 ```bash
 # 1. Clone or navigate to directory
-cd /Applications/XAMPP/xamppfiles/htdocs/carrental
+cd /path/to/WebotApp-DriveSphere-ERP
 
-# 2. Install PHP & Node dependencies
+# 2. Configure environment
+cp .env.example .env
+php artisan key:generate
+
+# 3. Install PHP & Node dependencies
 composer install
 npm install
 
-# 3. Compile frontend assets
+# 4. Compile frontend assets
 npm run build
 
-# 4. Create database and run migrations
+# 5. Create database and run migrations
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS carrental_erp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 php artisan migrate --seed
 
-# 5. Start the local server
+# 6. Start the local server
 php artisan serve
 ```
 

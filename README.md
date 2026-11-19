@@ -97,13 +97,80 @@ Every stakeholder operates within a tailored workflow with dedicated navigation 
 
 ## 🚀 Quickstart & Installation
 
-### Prerequisites
+### Option A: Docker Compose (Recommended) 🐳
+
+The fastest and most consistent way to run DriveSphere ERP is via Docker Compose. It provisions PHP 8.3-FPM, Nginx, MySQL 8.0, an asynchronous Queue Worker, and a Cron Scheduler in orchestrated containers with persistent volumes.
+
+#### 1. Prerequisites
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (v24.0+ recommended)
+* Docker Compose (v2.20+)
+
+#### 2. Architecture Matrix
+| Service | Container Name | Base Image / Build | Port Mapping | Purpose |
+|---|---|---|---|---|
+| **App** | `drivesphere-app` | Multi-stage: Node 20 + Composer 2 + PHP 8.3-FPM Alpine | Internal `9000` | Laravel 11 Backend API & Blade rendering |
+| **Web** | `drivesphere-web` | `nginx:1.27-alpine` | `8000:80` | High-performance reverse proxy & static asset delivery |
+| **Database** | `drivesphere-db` | `mysql:8.0` | `3306:3306` | Relational database (`carrental_erp`, utf8mb4) |
+| **Queue** | `drivesphere-queue` | Multi-stage PHP 8.3-FPM | Internal | Background duty slips, emails, and job processing |
+| **Scheduler** | `drivesphere-scheduler` | Multi-stage PHP 8.3-FPM | Internal | Cron schedule worker for fitness/maintenance checks |
+
+#### 3. Step-by-Step Docker Initialization
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/webotapp-academy/WebotApp-DriveSphere-ERP.git
+cd WebotApp-DriveSphere-ERP
+
+# 2. Configure environment from Docker template
+cp .env.docker.example .env
+
+# 3. Build images and start all containers in background
+docker compose up -d --build
+
+# 4. Run database migrations with comprehensive dummy seeds
+docker compose exec app php artisan migrate:fresh --seed
+
+# 5. Verify service health and container status
+docker compose ps
+```
+
+Visit the application in your browser:
+* **Public Homepage & Fleet Catalog:** `http://localhost:8000/`
+* **ERP Login Portal:** `http://localhost:8000/login`
+
+#### 4. Useful Docker Commands
+
+```bash
+# Run automated test suite inside container
+docker compose exec app php artisan test
+
+# Stream live application, web, and queue logs
+docker compose logs -f app web queue
+
+# Access PHP container interactive shell
+docker compose exec app bash
+
+# Run custom artisan commands
+docker compose exec app php artisan route:list
+
+# Stop all containers
+docker compose stop
+
+# Destroy containers and networks (add -v to remove database volumes)
+docker compose down
+```
+
+---
+
+### Option B: Local Native Setup (PHP & MySQL)
+
+#### Prerequisites
 * PHP >= 8.2 (PHP 8.4 recommended)
 * Composer 2.x
 * Node.js 18+ and NPM
 * MySQL 8.0+ / MariaDB 10.4+
 
-### Step-by-Step Setup
+#### Step-by-Step Setup
 
 ```bash
 # 1. Clone the repository
@@ -137,8 +204,8 @@ php artisan serve
 ```
 
 Access the application in your browser:
-- **Public Homepage & Fleet Catalog:** `http://127.0.0.1:8000/`
-- **ERP Login Portal:** `http://127.0.0.1:8000/login`
+* **Public Homepage & Fleet Catalog:** `http://127.0.0.1:8000/`
+* **ERP Login Portal:** `http://127.0.0.1:8000/login`
 
 ---
 
